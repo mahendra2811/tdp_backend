@@ -22,7 +22,14 @@ connectDB();
 verifyEmailConfig();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // Specific origin instead of wildcard
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -34,20 +41,40 @@ app.use('/api/redirects', redirectRoutes);
 app.use('/api/auth', authRoutes);
 
 // Public redirect route
-app.use('/r/:slug', (req, res) => {
+app.use('/r/:slug', (req: Request, res: Response) => {
   res.redirect(`/api/redirects/r/${req.params.slug}`);
 });
 
 // Health check route
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'success',
     message: 'Server is running',
   });
 });
 
+// Test login route (for debugging)
+app.post('/api/test-login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  console.log('Test login attempt:', { email, password });
+
+  // Always return success for testing
+  res.status(200).json({
+    success: true,
+    message: 'Test login successful',
+    token: 'test-token-123',
+    user: {
+      _id: '123',
+      name: 'Test Admin',
+      email: email,
+      role: 'admin',
+      active: true
+    }
+  });
+});
+
 // Root route
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'success',
     message: 'Welcome to Thar Desert Photography API',
@@ -55,7 +82,7 @@ app.get('/', (req, res) => {
 });
 
 // 404 handler
-app.use((req, res) => {
+app.use((req: Request, res: Response) => {
   res.status(404).json({
     status: 'error',
     message: 'Route not found',

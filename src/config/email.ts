@@ -13,6 +13,7 @@ const emailConfig = {
     user: process.env.EMAIL_USER || 'your_email@example.com',
     pass: process.env.EMAIL_PASS || 'your_email_password',
   },
+  requireTLS: true, // Required for Mailtrap live service
 };
 
 // Create transporter
@@ -36,6 +37,11 @@ export const sendEmail = async (
   from: string = process.env.EMAIL_FROM || 'your_email@example.com'
 ): Promise<void> => {
   try {
+    // IMPORTANT: When using Mailtrap's live SMTP service:
+    // 1. The FROM domain must be verified with Mailtrap
+    // 2. You cannot send from domains you don't own
+    // 3. If testing, consider using Mailtrap's sandbox environment instead
+
     const info = await transporter.sendMail({
       from,
       to,
@@ -44,7 +50,18 @@ export const sendEmail = async (
     });
     console.log('Email sent:', info.messageId);
   } catch (error) {
-    console.error('Error sending email:', error);
+    // Check for domain verification errors
+    if (
+      error instanceof Error &&
+      error.message &&
+      error.message.includes('domain') &&
+      error.message.includes('not allowed')
+    ) {
+      console.error('Domain verification error:', error.message);
+      console.error('To fix this, verify your domain with Mailtrap or use a verified domain');
+    } else {
+      console.error('Error sending email:', error);
+    }
     throw error;
   }
 };
