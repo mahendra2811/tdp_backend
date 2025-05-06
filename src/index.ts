@@ -8,6 +8,7 @@ import leadRoutes from './routes/leadRoutes';
 import teamApplicationRoutes from './routes/teamApplicationRoutes';
 import redirectRoutes from './routes/redirectRoutes';
 import authRoutes from './routes/authRoutes';
+import blogRoutes from './routes/blogRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -39,6 +40,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/team-applications', teamApplicationRoutes);
 app.use('/api/redirects', redirectRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/blogs', blogRoutes);
 
 // Public redirect route
 app.use('/r/:slug', (req: Request, res: Response) => {
@@ -68,8 +70,8 @@ app.post('/api/test-login', (req: Request, res: Response) => {
       name: 'Test Admin',
       email: email,
       role: 'admin',
-      active: true
-    }
+      active: true,
+    },
   });
 });
 
